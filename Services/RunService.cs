@@ -1,16 +1,19 @@
-﻿namespace ParkingOnBoard.Services
+﻿using Microsoft.Identity.Client;
+using ParkingOnBoard.Validations;
+using System.Diagnostics;
+
+namespace ParkingOnBoard.Services
 {
     public class RunService
     {
+
         public const string admin = "admin";
         public const string user = "user";
         public const string apass = "admin";
-        public const string upass = "user";
-        //private readonly string name;
+        public const string upass = "user";   
         public static void RunProgram()
         {
             bool isLoggedIn = false;
-            bool isAdmin = false;
             string password;
 
             while (!isLoggedIn)
@@ -18,16 +21,14 @@
                 Console.WriteLine("Welcome to \"Parking on board!\" console application! \n");
                 try
                 {
-                    Console.WriteLine("Are you admin or user?");
+                    Console.WriteLine("Are you an admin or a user?");
                     string answer = Console.ReadLine()!;
-
-                    //should not be null or whitespace
+                    
                     if (string.IsNullOrWhiteSpace(answer))
                     {
                         throw new Exception("Input should not be null or whitespace!");
                     }
 
-                    //should not be a number 
                     foreach (char a in answer)
                     {
                         if (Char.IsDigit(a))
@@ -36,13 +37,15 @@
                         }
                     }
 
-                    if(answer != admin && answer != user)
+                    if (answer != admin && answer != user)
                     {
                         throw new Exception("Please enter a valid input!");
                     }
 
                     Console.WriteLine("Enter your password: ");
                     password = Console.ReadLine()!;
+
+                    Console.Clear();
 
                     if (string.IsNullOrWhiteSpace(password))
                     {
@@ -63,14 +66,15 @@
                         throw new Exception("Please enter a valid input!");
                     }
 
-                    if (answer == admin &&  password == apass)
+                    if (answer == admin && password == apass)
                     {
-                        isAdmin = true;
                         isLoggedIn = true;
+                        Admin();
                     }
-                    else if(answer == user && password == upass)
+                    else if (answer == user && password == upass)
                     {
                         isLoggedIn = true;
+                        User();
                     }
                     Console.Clear();
                 }
@@ -79,7 +83,10 @@
                     Console.WriteLine($"Error: {e.Message}");
                 }
             }
+        }
 
+        public static void Admin()
+        {
             StreetService streetData = new StreetService();
             ParkingService parkingData = new ParkingService();
             StatisticsService statisticsData = new StatisticsService();
@@ -87,90 +94,117 @@
             CityService cityData = new CityService();
 
             bool finished = false;
-          
+
             while (!finished)
             {
                 try
                 {
-                    if (isAdmin)
+
+                    Console.WriteLine("Welcome admin!");
+                    Console.WriteLine("Please choose what action you want to do!");
+                    Console.WriteLine("0.Manage cities. \n1.Managing information on the streets. \n2.Managing parking slots. \n3.Exit the program. \n4.Log out.");
+                    Console.WriteLine("Choose: ");
+
+                    var option = Convert.ToInt32(Console.ReadLine());
+
+                    Console.Clear();
+
+                    switch (option)
                     {
-                        Console.WriteLine("Welcome admin!");
-                        /*cityData.GetAllCities();
-                        Console.WriteLine("Enter the name of the city you want to manage information for: ");
-                        string name = Console.ReadLine()!;
-                        name = name;*/
-                        
-                        Console.WriteLine("Please choose what action you want to do!");
-                        Console.WriteLine("0.Manage cities. \n1.Managing information on the streets. \n2.Managing parking slots. \n3.Exit the program.");
-                        Console.WriteLine("Choose: ");
+                        case 0:
+                            Console.WriteLine("You selected the option: \"Managing information on cities\".");
+                            cityData.ManageCities();
+                            break;
 
-                        var option = Convert.ToInt32(Console.ReadLine());
+                        case 1:
+                            Console.WriteLine("You selected the option: \"Managing information on streets\".");
+                            streetData.ManageStreets();
+                            break;
+                        case 2:
+                            Console.WriteLine("You selected the option: \"Managing parking slots.\"");
+                            slotData.ManageParkingSlots();
+                            break;
+                        case 3:
+                            finished = true;
+                            Environment.Exit(0);
+                            break;
+                        case 4:
+                            Console.WriteLine("Log out!");
+                            RunProgram();
+                            break;
 
-                        Console.Clear();
-
-                        switch (option)
-                        {
-                            case 0:
-                                Console.WriteLine("You selected the option: \"Managing information on cities\".");
-                                cityData.ManageCities();
-                                break;
-
-                            case 1:
-                                Console.WriteLine("You selected the option: \"Managing information on streets\".");
-                                streetData.ManageStreets();
-                                break;
-                            case 2:
-                                Console.WriteLine("You selected the option: \"Managing parking slots.\"");
-                                slotData.ManageParkingSlots();
-                                break;
-                            case 3:
-                                finished = true;
-                                Environment.Exit(0);
-                                break;
-                            default:
-                                Console.WriteLine("Invalid option!");
-                                break;
-                        }
+                        default:
+                            Console.WriteLine("Invalid option!");
+                            break;
                     }
-                    else
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Error: {e.Message}");
+                }
+                Console.WriteLine("Press \"Enter\" to continue: ");
+                Console.ReadLine();
+                Console.Clear();
+            }
+        }
+
+        public static void User()
+        {
+            StreetService streetData = new StreetService();
+            ParkingService parkingData = new ParkingService();
+            StatisticsService statisticsData = new StatisticsService();
+            ParkingSlotService slotData = new ParkingSlotService();
+            CityService cityData = new CityService();
+
+            bool finished = false;
+
+            while (!finished)
+            {
+                try
+                {
+
+                    Console.WriteLine("Welcome user!");
+                    Console.WriteLine("Please choose what action you want to do!");
+                    Console.WriteLine("\n1.Parking. \n2.Statistics. \n3.Exit the program. \n4.Log out.");
+                    Console.WriteLine("Choose: ");
+
+                    var option = Convert.ToInt32(Console.ReadLine());
+
+                    Console.Clear();
+                    switch (option)
                     {
-                        Console.WriteLine("Welcome user!");
-                        Console.WriteLine("Please choose what action you want to do!");
-                        Console.WriteLine("\n1.Parking. \n2.Statistics. \n3.Exit the program.");
-                        Console.WriteLine("Choose: ");
-
-                        var option = Convert.ToInt32(Console.ReadLine());
-
-                        Console.Clear();
-                        switch (option)
-                        {
-                            case 1:
-                                Console.WriteLine("You selected the option: \"Parking.\" ");
-                                parkingData.ManageParkingProcess();
-                                break;
-                            case 2:
-                                Console.WriteLine("You selected the option: \" Statistics.\"");
-                                statisticsData.DisplayStatistics();
-                                break;
-                            case 3:
-                                finished = true;
-                                Environment.Exit(0);
-                                break;
-                            default:
-                                Console.WriteLine("Invalid operation!");
-                                break;
-                        }
+                        case 1:
+                            Console.WriteLine("You selected the option: \"Parking.\" ");
+                            parkingData.ManageParkingProcess();
+                            break;
+                        case 2:
+                            Console.WriteLine("You selected the option: \" Statistics.\"");
+                            statisticsData.DisplayStatistics();
+                            break;
+                        case 3:
+                            finished = true;
+                            Environment.Exit(0);
+                            break;
+                        case 4:
+                            Console.WriteLine("Log out!");
+                            RunProgram();
+                            break;
+                        default:
+                            Console.WriteLine("Invalid operation!");
+                            break;
                     }
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine($"Error: {e.Message}");
                 }
-
                 Console.WriteLine("Press \"Enter\" to continue: ");
                 Console.ReadLine();
                 Console.Clear();
             }
         }
+
+
     }
 }

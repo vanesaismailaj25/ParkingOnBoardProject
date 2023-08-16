@@ -1,5 +1,4 @@
-﻿using ParkingOnBoard.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace ParkingOnBoard;
 public class Street

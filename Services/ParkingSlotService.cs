@@ -1,5 +1,6 @@
 ﻿using ParkingOnBoard.Context;
 using ParkingOnBoard.Services;
+using ParkingOnBoard.Validations;
 
 namespace ParkingOnBoard;
 
@@ -8,12 +9,14 @@ public class ParkingSlotService
     private readonly ParkingOnBoardContext _context;
     private readonly StreetService _streetService;
     private readonly CityService _cityService;
+    private readonly Validation _validations;
 
     public ParkingSlotService()
     {
         _context = new ParkingOnBoardContext();
         _streetService = new StreetService();
         _cityService = new CityService();
+        _validations = new Validation();
     }
 
     public void ManageParkingSlots()
@@ -21,11 +24,7 @@ public class ParkingSlotService
         try
         {
             Console.WriteLine("Choose what operation would you like to do: ");
-            Console.WriteLine("1. Add a new parking slot to a street.");
-            Console.WriteLine("2. Remove a parking slot from a street.");
-            Console.WriteLine("3. Close a parking slot.");
-            Console.WriteLine("4. Validate a parking slot.");           
-            Console.WriteLine("Answer: ");
+            Console.WriteLine("1. Add a new parking slot to a street. \n2. Remove a parking slot from a street. \n3. Occupy a parking slot. \n4. Close a parking slot. \n5. Validate a parking slot. \n6.Main menu. \nAnswer: ");
             int input = int.Parse(Console.ReadLine()!);
 
             switch (input)
@@ -34,273 +33,226 @@ public class ParkingSlotService
                     try
                     {
                         Console.WriteLine("The list of all the cities: ");
-                        _cityService.GetAllCities();
-                        Console.WriteLine("\n");
-                        Console.WriteLine("Enter the name of the city you want to add the parking slot: ");
-                        string cityName = Console.ReadLine()!;
-                        if(string.IsNullOrWhiteSpace(cityName))
+                        var citiesResult = _cityService.GetAllCities();
+                        if (citiesResult.Count > 0)
                         {
-                            throw new Exception("City name should not be null or whitespace!");
-                        }
+                            Console.WriteLine("Enter the name of the city you want to add the parking slot: ");
+                            string cityName = Console.ReadLine()!;
 
-                        foreach (char c in cityName)
-                        {
-                            if (Char.IsDigit(c))
+                            _validations.CitiesValidator(cityName);
+
+                            Console.WriteLine($"The list of all the streets of {cityName}");
+                            var result = _streetService.GetAllStreets(cityName);
+                            if (result.Count > 0)
                             {
-                                throw new Exception("The input you entered was numeric. Please enter a valid city name!");
+                                Console.WriteLine("Enter the name of the street where you want to add the parking slot: ");
+                                string streetName = Console.ReadLine()!;
+
+                                _validations.StreetsValidator(streetName);
+
+                                Console.WriteLine("All the parking slots: ");
+                                GetAllParkingSlots(streetName);
+
+
+                                Console.WriteLine("Enter the number of the slot you want to add: ");
+                                int slotNumber;
+
+                                if (int.TryParse(Console.ReadLine(), out slotNumber))
+                                {
+                                    _validations.SlotValidator(streetName, slotNumber);
+                                    AddSlotToTheStreet(streetName, slotNumber);
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Invalid input for slot number!");
+                                }
                             }
-                        }
-
-                        var cityExists = _context.Cities.Any(c => c.CityName == cityName);
-                        if (!cityExists)
-                        {
-                            throw new Exception($"The city with the name {cityName} doesn't exist in the database!");
-                        }
-
-                        Console.WriteLine($"The list of all the streets of {cityName}");
-                        _streetService.GetAllStreets(cityName);
-                        Console.WriteLine("\n");
-                        Console.WriteLine("Enter the name of the street where you want to add the parking slot: ");
-                        string streetName = Console.ReadLine()!;
-                        if (string.IsNullOrWhiteSpace(streetName))
-                        {
-                            throw new Exception("Street name should not be null or whitespace!");
-                        }
-
-                        foreach (char c in streetName)
-                        {
-                            if (Char.IsDigit(c))
-                            {
-                                throw new Exception("The input you entered was numeric. Please enter a valid street name!");
-                            }
-                        }
-
-                        var streetExist = _context.Streets.Any(s => s.Name == streetName);
-                        if (!streetExist)
-                        {
-                            throw new Exception($"The city with the name {streetName} doesn't exist in the database!");
-                        }
-
-                        Console.WriteLine("All the parking slots: ");
-                        GetAllParkingSlots(streetName);
-                        Console.WriteLine("\n");
-                        Console.WriteLine("Enter the number of the slot you want to add: ");
-                        int slotNumber;
-
-                        if (int.TryParse(Console.ReadLine(), out slotNumber))
-                        {
-                            AddSlotToTheStreet(streetName, slotNumber);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Invalid input for slot number!");
                         }
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine($"Error: {e.Message}");
                     }
-                    
-                break;
+                    break;
 
                 case 2:
                     try
                     {
                         Console.WriteLine("The list of all the cities: ");
-                        _cityService.GetAllCities();
-                        Console.WriteLine("\n");
-                        Console.WriteLine("Enter the name of the city you want to remove the parking slot from: ");
-                        string cityNameRemove = Console.ReadLine()!;
-                        if (string.IsNullOrWhiteSpace(cityNameRemove))
+                        var citiesResults = _cityService.GetAllCities();
+                        if (citiesResults.Count > 0)
                         {
-                            throw new Exception("City name should not be null or whitespace!");
-                        }
 
-                        foreach (char c in cityNameRemove)
-                        {
-                            if (Char.IsDigit(c))
+                            Console.WriteLine("Enter the name of the city you want to remove the parking slot from: ");
+                            string cityNameRemove = Console.ReadLine()!;
+
+                            _validations.CitiesValidator(cityNameRemove);
+
+                            Console.WriteLine($"The list of all the streets of {cityNameRemove}");
+                            var result = _streetService.GetAllStreets(cityNameRemove);
+
+                            if (result.Count > 0)
                             {
-                                throw new Exception("The input you entered was numeric. Please enter a valid city name!");
+                                Console.WriteLine("Enter the name of the street you want to remove the parking slot from: ");
+                                string streetNameRemove = Console.ReadLine()!;
+
+                                _validations.StreetsValidator(streetNameRemove);
+
+                                Console.WriteLine("All the parking slots: ");
+
+                                var slotsResult = GetAllParkingSlots(streetNameRemove);
+                                if (slotsResult.Count > 0) //check
+                                {
+                                    Console.WriteLine("Enter the number of the slot you want to remove: ");
+                                    int slotNumberRemove;
+
+                                    if (int.TryParse(Console.ReadLine(), out slotNumberRemove))
+                                    {
+                                        _validations.SlotsValidator(slotNumberRemove);
+                                        RemoveASlotFromStreet(streetNameRemove, slotNumberRemove);
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Invalid input for the slot number!");
+                                    }
+                                }
                             }
-                        }
-
-                        var cityExistsRemove = _context.Cities.Any(c => c.CityName == cityNameRemove);
-                        if (!cityExistsRemove)
-                        {
-                            throw new Exception($"The city with the name {cityNameRemove} doesn't exist in the database!");
-                        }
-
-                        Console.WriteLine($"The list of all the streets of {cityNameRemove}");
-                        _streetService.GetAllStreets(cityNameRemove);
-                        Console.WriteLine("\n");
-                        Console.WriteLine("Enter the name of the street you want to remove the parking slot from: ");
-                        string streetNameRemove = Console.ReadLine()!;
-                        if (string.IsNullOrWhiteSpace(streetNameRemove))
-                        {
-                            throw new Exception("Street name should not be null or whitespace!");
-                        }
-
-                        foreach (char c in streetNameRemove)
-                        {
-                            if (Char.IsDigit(c))
-                            {
-                                throw new Exception("The input you entered was numeric. Please enter a valid street name!");
-                            }
-                        }
-
-                        var streetExistsRemove = _context.Streets.Any(s => s.Name == streetNameRemove);
-                        if (!streetExistsRemove)
-                        {
-                            throw new Exception($"The city with the name {streetNameRemove} doesn't exist in the database!");
-                        }
-                        Console.WriteLine("All the parking slots: ");
-                        GetAllParkingSlots(streetNameRemove);
-                        Console.WriteLine("\n");
-                        Console.WriteLine("Enter the number of the slot you want to remove: ");
-                        int slotNumberRemove;
-
-                        if (int.TryParse(Console.ReadLine(), out slotNumberRemove))
-                        {
-                            RemoveASlotFromStreet(streetNameRemove, slotNumberRemove);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Invalid input for the slot number!");
                         }
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         Console.WriteLine($"Error: {e.Message}");
                     }
-                    
-                break;
+
+                    break;
 
                 case 3:
                     Console.WriteLine("The list of all the cities: ");
-                    _cityService.GetAllCities();
-                    Console.WriteLine("\n");
-                    Console.WriteLine("Enter the name of the city you want to remove the parking slot from: ");
-                    string cityNameClose = Console.ReadLine()!;
-                    if (string.IsNullOrWhiteSpace(cityNameClose))
+                    var cityResult = _cityService.GetAllCities();
+                    if (cityResult.Count > 0)
                     {
-                        throw new Exception("City name should not be null or whitespace!");
-                    }
+                        Console.WriteLine("Enter the name of the city you want to remove the parking slot from: ");
+                        string cityNameClose = Console.ReadLine()!;
 
-                    foreach (char c in cityNameClose)
-                    {
-                        if (Char.IsDigit(c))
+                        _validations.CitiesValidator(cityNameClose);
+
+                        Console.WriteLine($"The list of all the streets of {cityNameClose}");
+                        var streetResults = _streetService.GetAllStreets(cityNameClose);
+
+                        if (streetResults.Count > 0)
                         {
-                            throw new Exception("The input you entered was numeric. Please enter a valid city name!");
+                            Console.WriteLine("Enter the name of the street you want to close/make it busy a parking slot: ");
+                            string streetNameClose = Console.ReadLine()!;
+
+                            _validations.StreetsValidator(streetNameClose);
+
+                            Console.WriteLine("All the parking slots: ");
+                            var slotResult = GetAllFreeParkingSlots(streetNameClose);
+                            if (slotResult.Count > 0) //check
+                            {
+                                Console.WriteLine("Enter the number of the slot you want to close: ");
+                                int slotNumberClose;
+
+                                if (int.TryParse(Console.ReadLine(), out slotNumberClose))
+                                {
+                                    _validations.SlotsValidator(slotNumberClose);
+                                    OccupyAParkingSlot(streetNameClose, slotNumberClose);
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Invalid input of the slot number!");
+                                }
+                            }
                         }
-                    }
-
-                    var cityExistsClose = _context.Cities.Any(c => c.CityName == cityNameClose);
-                    if (!cityExistsClose)
-                    {
-                        throw new Exception($"The city with the name {cityNameClose} doesn't exist in the database!");
-                    }
-
-                    Console.WriteLine($"The list of all the streets of {cityNameClose}");
-                    _streetService.GetAllStreets(cityNameClose);
-                    Console.WriteLine("\n");
-                    Console.WriteLine("Enter the name of the street you want to close a parking slot: ");
-                    string streetNameClose = Console.ReadLine()!;
-                    if (string.IsNullOrWhiteSpace(streetNameClose))
-                    {
-                        throw new Exception("Street name should not be null or whitespace!");
-                    }
-
-                    foreach (char c in streetNameClose)
-                    {
-                        if (Char.IsDigit(c))
-                        {
-                            throw new Exception("The input you entered was numeric. Please enter a valid street name!");
-                        }
-                    }
-
-                    var streetExists = _context.Streets.Any(s => s.Name == streetNameClose);
-                    if (!streetExists)
-                    {
-                        throw new Exception($"The city with the name {streetNameClose} doesn't exist in the database!");
-                    }
-                    Console.WriteLine("All the parking slots that are not closed already: ");
-                    GetAllParkingSlots(streetNameClose);
-                    Console.WriteLine("\n");
-                    Console.WriteLine("Enter the number of the slot you want to close: ");
-                    int slotNumberClose;
-
-                    if (int.TryParse(Console.ReadLine(), out slotNumberClose))
-                    {
-                        CloseAParkingSlot(streetNameClose, slotNumberClose);                      
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid input of the slot number!");
                     }
                     break;
 
                 case 4:
                     Console.WriteLine("The list of all the cities: ");
-                    _cityService.GetAllCities();
-                    Console.WriteLine("\n");
-                    Console.WriteLine("Enter the name of the city you want to remove the parking slot from: ");
-                    string cityNameValidate = Console.ReadLine()!;
-                    if (string.IsNullOrWhiteSpace(cityNameValidate))
+                    var cityResultList = _cityService.GetAllCities();
+                    if (cityResultList.Count > 0)
                     {
-                        throw new Exception("City name should not be null or whitespace!");
-                    }
+                        Console.WriteLine("Enter the name of the city you want to remove the parking slot from: ");
+                        string cityNameClose = Console.ReadLine()!;
 
-                    foreach (char c in cityNameValidate)
-                    {
-                        if (Char.IsDigit(c))
+                        _validations.CitiesValidator(cityNameClose);
+
+                        Console.WriteLine($"The list of all the streets of {cityNameClose}");
+                        var streetResults = _streetService.GetAllStreets(cityNameClose);
+
+                        if (streetResults.Count > 0)
                         {
-                            throw new Exception("The input you entered was numeric. Please enter a valid city name!");
+                            Console.WriteLine("Enter the name of the street you want to close/make it busy a parking slot: ");
+                            string streetNameClose = Console.ReadLine()!;
+
+                            _validations.StreetsValidator(streetNameClose);
+
+                            Console.WriteLine("All the parking slots: ");
+                            var slotResult = GetAllFreeParkingSlots(streetNameClose);
+                            if (slotResult.Count > 0) //check
+                            {
+                                Console.WriteLine("Enter the number of the slot you want to close: ");
+                                int slotNumberClose;
+
+                                if (int.TryParse(Console.ReadLine(), out slotNumberClose))
+                                {
+                                    _validations.SlotsValidator(slotNumberClose);
+                                    CloseAParkingSlot(streetNameClose, slotNumberClose);
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Invalid input of the slot number!");
+                                }
+                            }
                         }
                     }
+                    break;
+                case 5:
+                    Console.WriteLine("The list of all the cities: ");
+                    var results = _cityService.GetAllCities();
 
-                    var cityExistsValidate = _context.Cities.Any(c => c.CityName == cityNameValidate);
-                    if (!cityExistsValidate)
+                    if (results.Count > 0)
                     {
-                        throw new Exception($"The city with the name {cityNameValidate} doesn't exist in the database!");
-                    }
+                        Console.WriteLine("Enter the name of the city you want to remove the parking slot from: ");
+                        string cityNameValidate = Console.ReadLine()!;
 
-                    Console.WriteLine($"The list of all the streets of {cityNameValidate}");
-                    _streetService.GetAllStreets(cityNameValidate);
-                    Console.WriteLine("\n");
-                    Console.WriteLine("Enter the name of the street you want to validate a parking slot on: ");
-                    string streetNameValidate = Console.ReadLine()!;
-                    if (string.IsNullOrWhiteSpace(streetNameValidate))
-                    {
-                        throw new Exception("Street name should not be null or whitespace!");
-                    }
+                        _validations.CitiesValidator(cityNameValidate);
 
-                    foreach (char c in streetNameValidate)
-                    {
-                        if (Char.IsDigit(c))
+                        Console.WriteLine($"The list of all the streets of {cityNameValidate}: ");
+                        var streetsResultList = _streetService.GetAllStreets(cityNameValidate);
+                        if (streetsResultList.Count > 0)
                         {
-                            throw new Exception("The input you entered was numeric. Please enter a valid street name!");
+                            Console.WriteLine("Enter the name of the street you want to validate a parking slot on: ");
+                            string streetNameValidate = Console.ReadLine()!;
+
+                            _validations.StreetsValidator(streetNameValidate);
+
+                            Console.WriteLine("The parking slots that will be validated: ");
+                            var slotResults = GetAllBusyParkingSlots(streetNameValidate);
+
+                            if (slotResults.Count > 0) //check
+                            {
+
+                                Console.WriteLine("Enter the slot number to validate: ");
+                                int slotNumberValidate;
+
+                                if (int.TryParse(Console.ReadLine(), out slotNumberValidate))
+                                {
+                                    _validations.SlotsValidator(slotNumberValidate);
+                                    ValidateAParkingSlot(streetNameValidate, slotNumberValidate);
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Invalid input of the slot number!");
+                                }
+                            }
                         }
                     }
+                    break;
 
-                    var streetExistsValidate = _context.Streets.Any(s => s.Name == streetNameValidate);
-                    if (!streetExistsValidate)
-                    {
-                        throw new Exception($"The city with the name {streetNameValidate} doesn't exist in the database!");
-                    }
-                    Console.WriteLine("The parking slots that will be validated: ");
-                    GetAllParkingSlots(streetNameValidate);
-                    Console.WriteLine("\n");
-                    Console.WriteLine("Enter the slot number to validate: ");
-                    int slotNumberValidate;
-
-                    if (int.TryParse(Console.ReadLine(), out slotNumberValidate))
-                    {
-                        ValidateAParkingSlot(streetNameValidate, slotNumberValidate);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid input of the slot number!");
-                    }
+                case 6:
+                    Console.WriteLine("Log out!");
+                    RunService.Admin();
                     break;
 
                 default:
@@ -308,59 +260,28 @@ public class ParkingSlotService
                     break;
             }
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             Console.WriteLine($"Error : {e.Message}");
-        } 
+        }
     }
-  
-    public void AddSlotToTheStreet(string streetName,int slotNumber)
+
+    public void AddSlotToTheStreet(string streetName, int slotNumber)
     {
         try
         {
-            //it should not be null or whitespace
-            if(string.IsNullOrWhiteSpace(streetName))
-            {
-                throw new ArgumentNullException("Street name should not be null or whitespace!");
-            }
+            var street = _context.Streets.SingleOrDefault(s => s.Name == streetName);
 
-            //it should not be a number
-            foreach(char c in streetName)
+            ParkingSlot slot = new ParkingSlot
             {
-                if (Char.IsDigit(c))
-                {
-                    throw new Exception("The input you entered was numeric. Please enter a valid street name!");
-                }
-            }
+                SlotNumber = slotNumber,
+                StreetId = street.Id,
+                StreetName = streetName
+            };
+            _context.ParkingSlots.Add(slot);
+            _context.SaveChanges();
 
-            //if the number is negative 
-            if(slotNumber < 0)
-            {
-                throw new Exception("The input you entered was out of range. Please enter a valid slot number!");
-            }
-
-            var street = _context.Streets.SingleOrDefault(s => s.Name.Trim() == streetName.Trim()); 
-            if (street == null)
-            {
-                throw new Exception($"The street with the name {streetName} does not exist in the database!");
-            }
-          
-            var slotExists = _context.ParkingSlots.Any(s => s.SlotNumber == slotNumber);
-            if (!slotExists)
-            {
-                throw new Exception($"The slot with the number {slotNumber} already exists in the database!");
-            }
-           
-                ParkingSlot slot = new ParkingSlot
-                {
-                    SlotNumber = slotNumber,
-                    StreetId = street.Id,
-                    StreetName = streetName                   
-                };
-                _context.ParkingSlots.Add(slot);
-                _context.SaveChanges();
-
-                Console.WriteLine($"The parking lot was added succesfully to the street:{streetName}.");
+            Console.WriteLine($"The parking lot was added succesfully to the street:{streetName}.");
         }
         catch (Exception e)
         {
@@ -372,81 +293,78 @@ public class ParkingSlotService
     {
         try
         {
-            //it should no be null or whitespace
-            if (string.IsNullOrWhiteSpace(streetName))
-            {
-                throw new ArgumentNullException("Street name should not be null or whitespace!");
-            }
+            var slot = _context.ParkingSlots.FirstOrDefault(sn => sn.SlotNumber == slotNumber && sn.Street.Name == streetName);
 
-            //it should not be a number
-            foreach(char c in streetName)
+            if (slot == null)
             {
-                if (Char.IsDigit(c))
-                {
-                    throw new Exception("The input you entered was numeric. Please enter a valid street name!");
-                }
-            }
-            //it shouldn't be a negative nr
-            if (slotNumber < 0)
-            {
-                throw new Exception("The input you entered was out of range. Please enter a valid slot number!");
-            }
-
-            var slot = _context.ParkingSlots.FirstOrDefault(sn => sn.SlotNumber == slotNumber && sn.Street.Name.ToLower().Trim() == streetName.ToLower().Trim());
-            if (slot != null)
-            {
-                _context.ParkingSlots.Remove(slot);
-            }
-            _context.SaveChanges();
-
-            Console.WriteLine($"The slot with the number {slotNumber} was removed successfully from the '{streetName}' street!");
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Could not remove the parking slot. {e.Message}");
-        }
-    }
-
-    public void CloseAParkingSlot(string streetName, int slotNumber)
-    {
-        try
-        {
-            //it should not be null or whitespace
-            if (string.IsNullOrEmpty(streetName))
-            {
-                throw new ArgumentNullException("Street name should not be null or whitespace!");
-            }
-
-            //it should not be a number
-            foreach(char c in streetName)
-            {
-                if (Char.IsDigit(c))
-                {
-                    throw new Exception("The input you entered was numeric. Please enter a valid street name!");
-                }
-            }
-           
-            //it shouldn't be a negative nr
-            if (slotNumber < 0)
-            {
-                throw new Exception("The input you entered was out of range. Please enter a valid slot number!");
-            }
-
-            var slot = _context.ParkingSlots.FirstOrDefault(sn => sn.SlotNumber == slotNumber && sn.Street.Name.Trim() == streetName.Trim());       
-            if (slot != null && slot.IsBusy == false)
-            {
-                slot.IsBusy = true;
-                Console.WriteLine($"The slot with the number {slotNumber} was closed successfully!");
+                throw new Exception($"The slot with the number {slotNumber} in the street {streetName} doesn't exist!");
             }
             else
             {
-                Console.WriteLine($"The slot with the number {slotNumber} is already closed!");
+                _context.ParkingSlots.Remove(slot);
+                _context.SaveChanges();
+                Console.WriteLine($"The slot with the number {slotNumber} in the street {streetName} was removed successfully from the database!");
             }
-            _context.SaveChanges();
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Could not validate parking slot. {e.Message}");
+            Console.WriteLine($"Error: {e.Message}");
+        }
+    }
+
+    public void OccupyAParkingSlot(string streetName, int slotNumber)
+    {
+        try
+        {
+            var slot = _context.ParkingSlots.FirstOrDefault(sn => sn.SlotNumber == slotNumber && sn.Street.Name == streetName);
+
+            if (slot == null)
+            {
+                throw new Exception($"The slot with the number {slotNumber} in the street {streetName} doesn't exist!");
+            }
+            else if (slot.IsBusy == true)
+            {
+                throw new Exception($"The slot wth the number {slotNumber} in the street {streetName} is already occupied!");
+            }
+            else
+            {
+                slot.IsBusy = true;
+                _context.ParkingSlots.Update(slot);
+                _context.SaveChanges();
+                Console.WriteLine($"The slot with the number {slotNumber} is now occupied!");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error: {e.Message}");
+        }
+    }
+
+    public void CloseAParkingSlot(string streetName, int slotNuber)
+    {
+        try
+        {
+            var slot = _context.ParkingSlots.FirstOrDefault(sn => sn.SlotNumber == slotNuber && sn.Street.Name == streetName);
+
+            if (slot == null)
+            {
+                throw new Exception($"The slot with the number {slotNuber} in the street {streetName} doesn't exist!");
+            }
+            else if (slot.IsClosed == true)
+            {
+                throw new Exception($"The slot with the number {slotNuber} in the street {streetName} is already closed!");
+            }
+            else
+            {
+                slot.IsClosed = true;
+                _context.ParkingSlots.Update(slot);
+                _context.SaveChanges();
+                Console.WriteLine($"The slot with the number {slotNuber} is now closed!");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error: {e.Message}");
         }
     }
 
@@ -454,57 +372,84 @@ public class ParkingSlotService
     {
         try
         {
-            //it should not be null or whitespace
-            if (string.IsNullOrWhiteSpace(streetName))
-            {
-                throw new ArgumentNullException("Street name should not be null or whitespace!");
-            }
+            var slot = _context.ParkingSlots.FirstOrDefault(sn => sn.SlotNumber == slotNumber && sn.Street.Name == streetName);
 
-            //should not be a number
-            foreach(char c in streetName)
+            if (slot == null)
             {
-                if (Char.IsDigit(c))
-                {
-                    throw new Exception("The input you entered was numeric. Please enter a valid street name");
-                }
+                throw new Exception($"The slot with the number {slotNumber} in the street {streetName} doesn't exist!");
             }
-
-            //it shouldn't be a negative nr
-            if (slotNumber < 0)
+            else if (slot.IsBusy == false)
             {
-                throw new Exception("The input you entered was out of range. Please enter a valid slot number!");
-            }
-
-            var slot = _context.ParkingSlots.FirstOrDefault(sn => sn.SlotNumber == slotNumber && sn.Street.Name.Trim() == streetName.Trim());
-            if (slot !=null && slot.IsBusy == true)
-            {
-                slot.IsBusy = false;
-                Console.WriteLine($"The slot with the number {slotNumber} was validated successfully!");
+                throw new Exception($"The slot wth the number {slotNumber} in the street {streetName} is already validated and opened!");
             }
             else
             {
-                Console.WriteLine($"The slot with the number {slotNumber} is already validated!");
+                slot.IsBusy = false;
+                _context.ParkingSlots.Update(slot);
+                _context.SaveChanges();
+                Console.WriteLine($"The slot with the number {slotNumber} is now validated!");
             }
-            _context.SaveChanges();
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Could not validate parking slot. {e.Message}.");
+            Console.WriteLine($"Error: {e.Message}.");
         }
     }
 
-    public void GetAllParkingSlots(string streetName)
+    public List<ParkingSlot> GetAllParkingSlots(string streetName)
     {
-        var parkingSlots = _context.ParkingSlots.Where(ps => ps.StreetName == streetName).ToList();
-        
-        if(parkingSlots.Count == 0)
-        {
+        var parkingSlots = _context.ParkingSlots.Where(ps => ps.StreetName == streetName && ps.IsClosed == false).ToList();
+
+        if (parkingSlots.Count == 0)
             Console.WriteLine($"There are no parking slots for the street {streetName}.");
-        }
+
         foreach (var parkingSlot in parkingSlots)
         {
             Console.WriteLine($"Parking slot with number: {parkingSlot.SlotNumber}");
         }
+        return parkingSlots;
+    }
+
+    public List<ParkingSlot> GetAllParkingSlots(string cityName,string streetName)
+    {
+        var parkingSlots = _context.ParkingSlots.Where(ps => ps.StreetName == streetName && ps.IsClosed == false).ToList();
+
+        if (parkingSlots.Count == 0)
+            Console.WriteLine($"There are no parking slots for the street {streetName}.");
+
+        foreach (var parkingSlot in parkingSlots)
+        {
+            Console.WriteLine($"Parking slot with number: {parkingSlot.SlotNumber}");
+        }
+        return parkingSlots;
+    }
+
+    public List<ParkingSlot> GetAllFreeParkingSlots(string streetName)
+    {
+        var parkingSlots = _context.ParkingSlots.Where(ps => ps.StreetName == streetName && ps.IsBusy == false && ps.IsClosed == false).ToList();
+
+        if (parkingSlots.Count == 0)
+            Console.WriteLine($"There are no parking slots for the street {streetName}.");
+
+        foreach (var parkingSlot in parkingSlots)
+        {
+            Console.WriteLine($"Parking slot with number: {parkingSlot.SlotNumber}");
+        }
+        return parkingSlots;
+    }
+
+    public List<ParkingSlot> GetAllBusyParkingSlots(string streetName)
+    {
+        var parkingSlots = _context.ParkingSlots.Where(ps => ps.StreetName == streetName && ps.IsBusy == true && ps.IsClosed == false).ToList();
+
+        if (parkingSlots.Count == 0)
+            Console.WriteLine($"There are no parking slots for the street {streetName}.");
+
+        foreach (var parkingSlot in parkingSlots)
+        {
+            Console.WriteLine($"Parking slot with number: {parkingSlot.SlotNumber}");
+        }
+        return parkingSlots;
     }
 }
-    
+
