@@ -7,7 +7,7 @@ public partial class ParkingOnBoardContext : DbContext
 {
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {  
-        optionsBuilder.UseSqlServer(@"Server=localhost\SQLExpress;Database=ParkingOnBoardDB;Integrated Security=true;TrustServerCertificate=true");
+        optionsBuilder.UseSqlServer(@"Server=localhost;Database=ParkingOnBoardDB;Integrated Security=true;TrustServerCertificate=true");
         base.OnConfiguring(optionsBuilder);
     }
 
@@ -38,15 +38,15 @@ public partial class ParkingOnBoardContext : DbContext
         modelBuilder.Entity<Street>().HasData(
             new Street
             {
-                Id = 1, Name = "Naim Frasheri", HasTwoSides = false, TotalValidSlots = 2, IsClosed = false, CityId = 1, CityName = "Tirana"
+                Id = 1, Name = "Naim Frasheri", HasTwoSides = false, IsClosed = false, CityId = 1, CityName = "Tirana"
             },
             new Street
             {
-                Id = 2, Name = "Sami Frasheri", HasTwoSides = false, TotalValidSlots = 2, IsClosed = false, CityId = 1, CityName = "Tirana"
+                Id = 2, Name = "Sami Frasheri", HasTwoSides = false,IsClosed = false, CityId = 1, CityName = "Tirana"
             },
             new Street
             {
-                Id = 3, Name = "Antipatrea", HasTwoSides = true, TotalValidSlots = 4, IsClosed = false, CityId = 2, CityName = "Berat"
+                Id = 3, Name = "Antipatrea", HasTwoSides = true,IsClosed = false, CityId = 2, CityName = "Berat"
             }
         );
 
