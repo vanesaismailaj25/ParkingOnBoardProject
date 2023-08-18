@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ParkingOnBoard.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace ParkingOnBoard;
 public class Street
@@ -7,9 +8,8 @@ public class Street
     public int Id { get; set; }
     public string Name { get; set; }
     public bool HasTwoSides { get; set; } = false;
-    public int TotalValidSlots { get; set; }
     public bool IsClosed { get; set; } = false;
-    public List<ParkingSlot> Slots { get; set; } 
-    public int CityId { get; set; }
-    public string CityName { get; set; } 
+    public ICollection<ParkingSlot> Slots { get; set; } 
+    public City City { get; set; }
+    public int CityId { get; set; } 
 }

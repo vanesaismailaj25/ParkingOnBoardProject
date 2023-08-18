@@ -101,7 +101,7 @@ public class ParkingSlotService
                                 Console.WriteLine("All the parking slots: ");
 
                                 var slotsResult = GetAllParkingSlots(streetNameRemove);
-                                if (slotsResult.Count > 0) //check
+                                if (slotsResult.Count > 0) 
                                 {
                                     Console.WriteLine("Enter the number of the slot you want to remove: ");
                                     int slotNumberRemove;
@@ -148,7 +148,7 @@ public class ParkingSlotService
 
                             Console.WriteLine("All the parking slots: ");
                             var slotResult = GetAllFreeParkingSlots(streetNameClose);
-                            if (slotResult.Count > 0) //check
+                            if (slotResult.Count > 0)
                             {
                                 Console.WriteLine("Enter the number of the slot you want to close: ");
                                 int slotNumberClose;
@@ -189,7 +189,7 @@ public class ParkingSlotService
 
                             Console.WriteLine("All the parking slots: ");
                             var slotResult = GetAllFreeParkingSlots(streetNameClose);
-                            if (slotResult.Count > 0) //check
+                            if (slotResult.Count > 0) 
                             {
                                 Console.WriteLine("Enter the number of the slot you want to close: ");
                                 int slotNumberClose;
@@ -230,9 +230,8 @@ public class ParkingSlotService
                             Console.WriteLine("The parking slots that will be validated: ");
                             var slotResults = GetAllBusyParkingSlots(streetNameValidate);
 
-                            if (slotResults.Count > 0) //check
+                            if (slotResults.Count > 0) 
                             {
-
                                 Console.WriteLine("Enter the slot number to validate: ");
                                 int slotNumberValidate;
 
@@ -270,18 +269,17 @@ public class ParkingSlotService
     {
         try
         {
-            var street = _context.Streets.SingleOrDefault(s => s.Name == streetName);
+            var street = _context.Streets.First(s => s.Name == streetName);
 
             ParkingSlot slot = new ParkingSlot
             {
                 SlotNumber = slotNumber,
                 StreetId = street.Id,
-                StreetName = streetName
             };
             _context.ParkingSlots.Add(slot);
             _context.SaveChanges();
 
-            Console.WriteLine($"The parking lot was added succesfully to the street:{streetName}.");
+            Console.WriteLine($"The parking lot was added successfully to the street:{streetName}.");
         }
         catch (Exception e)
         {
@@ -340,26 +338,26 @@ public class ParkingSlotService
         }
     }
 
-    public void CloseAParkingSlot(string streetName, int slotNuber)
+    public void CloseAParkingSlot(string streetName, int slotNumber)
     {
         try
         {
-            var slot = _context.ParkingSlots.FirstOrDefault(sn => sn.SlotNumber == slotNuber && sn.Street.Name == streetName);
+            var slot = _context.ParkingSlots.FirstOrDefault(sn => sn.SlotNumber == slotNumber && sn.Street.Name == streetName);
 
             if (slot == null)
             {
-                throw new Exception($"The slot with the number {slotNuber} in the street {streetName} doesn't exist!");
+                throw new Exception($"The slot with the number {slotNumber} in the street {streetName} doesn't exist!");
             }
             else if (slot.IsClosed == true)
             {
-                throw new Exception($"The slot with the number {slotNuber} in the street {streetName} is already closed!");
+                throw new Exception($"The slot with the number {slotNumber} in the street {streetName} is already closed!");
             }
             else
             {
                 slot.IsClosed = true;
                 _context.ParkingSlots.Update(slot);
                 _context.SaveChanges();
-                Console.WriteLine($"The slot with the number {slotNuber} is now closed!");
+                Console.WriteLine($"The slot with the number {slotNumber} is now closed!");
             }
         }
         catch (Exception e)
@@ -398,21 +396,7 @@ public class ParkingSlotService
 
     public List<ParkingSlot> GetAllParkingSlots(string streetName)
     {
-        var parkingSlots = _context.ParkingSlots.Where(ps => ps.StreetName == streetName && ps.IsClosed == false).ToList();
-
-        if (parkingSlots.Count == 0)
-            Console.WriteLine($"There are no parking slots for the street {streetName}.");
-
-        foreach (var parkingSlot in parkingSlots)
-        {
-            Console.WriteLine($"Parking slot with number: {parkingSlot.SlotNumber}");
-        }
-        return parkingSlots;
-    }
-
-    public List<ParkingSlot> GetAllParkingSlots(string cityName,string streetName)
-    {
-        var parkingSlots = _context.ParkingSlots.Where(ps => ps.StreetName == streetName && ps.IsClosed == false).ToList();
+        var parkingSlots = _context.ParkingSlots.Where(ps => ps.Street.Name == streetName && ps.IsClosed == false).ToList();
 
         if (parkingSlots.Count == 0)
             Console.WriteLine($"There are no parking slots for the street {streetName}.");
@@ -426,7 +410,7 @@ public class ParkingSlotService
 
     public List<ParkingSlot> GetAllFreeParkingSlots(string streetName)
     {
-        var parkingSlots = _context.ParkingSlots.Where(ps => ps.StreetName == streetName && ps.IsBusy == false && ps.IsClosed == false).ToList();
+        var parkingSlots = _context.ParkingSlots.Where(ps => ps.Street.Name == streetName && ps.IsBusy == false && ps.IsClosed == false).ToList();
 
         if (parkingSlots.Count == 0)
             Console.WriteLine($"There are no parking slots for the street {streetName}.");
@@ -440,7 +424,7 @@ public class ParkingSlotService
 
     public List<ParkingSlot> GetAllBusyParkingSlots(string streetName)
     {
-        var parkingSlots = _context.ParkingSlots.Where(ps => ps.StreetName == streetName && ps.IsBusy == true && ps.IsClosed == false).ToList();
+        var parkingSlots = _context.ParkingSlots.Where(ps => ps.Street.Name == streetName && ps.IsBusy == true && ps.IsClosed == false).ToList();
 
         if (parkingSlots.Count == 0)
             Console.WriteLine($"There are no parking slots for the street {streetName}.");

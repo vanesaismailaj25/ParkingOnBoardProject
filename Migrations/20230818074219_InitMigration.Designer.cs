@@ -11,8 +11,8 @@ using ParkingOnBoard.Context;
 namespace ParkingOnBoard.Migrations
 {
     [DbContext(typeof(ParkingOnBoardContext))]
-    [Migration("20230816081300_Remove_Property_TotalValidSlots_FromStreet")]
-    partial class Remove_Property_TotalValidSlots_FromStreet
+    [Migration("20230818074219_InitMigration")]
+    partial class InitMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -78,10 +78,6 @@ namespace ParkingOnBoard.Migrations
                     b.Property<int>("StreetId")
                         .HasColumnType("int");
 
-                    b.Property<string>("StreetName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("StreetId");
@@ -95,8 +91,7 @@ namespace ParkingOnBoard.Migrations
                             IsBusy = false,
                             IsClosed = false,
                             SlotNumber = 1,
-                            StreetId = 1,
-                            StreetName = "Naim Frasheri"
+                            StreetId = 1
                         },
                         new
                         {
@@ -104,8 +99,7 @@ namespace ParkingOnBoard.Migrations
                             IsBusy = false,
                             IsClosed = false,
                             SlotNumber = 2,
-                            StreetId = 1,
-                            StreetName = "Naim Frasheri"
+                            StreetId = 1
                         },
                         new
                         {
@@ -113,8 +107,7 @@ namespace ParkingOnBoard.Migrations
                             IsBusy = false,
                             IsClosed = false,
                             SlotNumber = 3,
-                            StreetId = 3,
-                            StreetName = "Antipatrea"
+                            StreetId = 3
                         },
                         new
                         {
@@ -122,8 +115,7 @@ namespace ParkingOnBoard.Migrations
                             IsBusy = false,
                             IsClosed = false,
                             SlotNumber = 4,
-                            StreetId = 3,
-                            StreetName = "Antipatrea"
+                            StreetId = 3
                         },
                         new
                         {
@@ -131,8 +123,7 @@ namespace ParkingOnBoard.Migrations
                             IsBusy = false,
                             IsClosed = false,
                             SlotNumber = 5,
-                            StreetId = 3,
-                            StreetName = "Antipatrea"
+                            StreetId = 3
                         },
                         new
                         {
@@ -140,8 +131,7 @@ namespace ParkingOnBoard.Migrations
                             IsBusy = false,
                             IsClosed = false,
                             SlotNumber = 6,
-                            StreetId = 3,
-                            StreetName = "Antipatrea"
+                            StreetId = 3
                         },
                         new
                         {
@@ -149,8 +139,7 @@ namespace ParkingOnBoard.Migrations
                             IsBusy = false,
                             IsClosed = false,
                             SlotNumber = 7,
-                            StreetId = 2,
-                            StreetName = "Sami Frasheri"
+                            StreetId = 2
                         },
                         new
                         {
@@ -158,8 +147,7 @@ namespace ParkingOnBoard.Migrations
                             IsBusy = false,
                             IsClosed = false,
                             SlotNumber = 8,
-                            StreetId = 2,
-                            StreetName = "Sami Frasheri"
+                            StreetId = 2
                         });
                 });
 
@@ -173,10 +161,6 @@ namespace ParkingOnBoard.Migrations
 
                     b.Property<int>("CityId")
                         .HasColumnType("int");
-
-                    b.Property<string>("CityName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("HasTwoSides")
                         .HasColumnType("bit");
@@ -199,7 +183,6 @@ namespace ParkingOnBoard.Migrations
                         {
                             Id = 1,
                             CityId = 1,
-                            CityName = "Tirana",
                             HasTwoSides = false,
                             IsClosed = false,
                             Name = "Naim Frasheri"
@@ -208,7 +191,6 @@ namespace ParkingOnBoard.Migrations
                         {
                             Id = 2,
                             CityId = 1,
-                            CityName = "Tirana",
                             HasTwoSides = false,
                             IsClosed = false,
                             Name = "Sami Frasheri"
@@ -217,7 +199,6 @@ namespace ParkingOnBoard.Migrations
                         {
                             Id = 3,
                             CityId = 2,
-                            CityName = "Berat",
                             HasTwoSides = true,
                             IsClosed = false,
                             Name = "Antipatrea"
@@ -237,11 +218,13 @@ namespace ParkingOnBoard.Migrations
 
             modelBuilder.Entity("ParkingOnBoard.Street", b =>
                 {
-                    b.HasOne("ParkingOnBoard.Models.City", null)
+                    b.HasOne("ParkingOnBoard.Models.City", "City")
                         .WithMany("Streets")
                         .HasForeignKey("CityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("City");
                 });
 
             modelBuilder.Entity("ParkingOnBoard.Models.City", b =>

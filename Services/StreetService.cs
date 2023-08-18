@@ -86,7 +86,6 @@ public class StreetService
                             _validations.CitiesValidator(cityNameClose);
 
                             Console.WriteLine("The list of the streets that are not closed: ");
-                            //var result = GetAllStreets(cityNameClose); // ketu kusht kur nuk kemi rruge
                             var result = GetAllFreeStreets(cityNameClose);
 
                             if (result.Count > 0)
@@ -158,32 +157,28 @@ public class StreetService
     {
         try
         {
-            //
-
-            var city = _context.Cities.SingleOrDefault(c => c.CityName == cityName);
+            var city = _context.Cities.First(c => c.CityName == cityName);
 
             var street = new Street
             {
                 Name = streetName,
                 HasTwoSides = sides,
-                TotalValidSlots = totalSlots,
-                CityName = cityName,
                 CityId = city.Id,
                 Slots = new List<ParkingSlot>()
             };
             _context.Streets.Add(street);
-            _context.SaveChanges();
-
+            
+            var list = new List<ParkingSlot>();
             for (int i = 1; i <= totalSlots; i++)
             {
                 var parkingSlot = new ParkingSlot
                 {
                     SlotNumber = i,
-                    StreetId = street.Id,
-                    StreetName = streetName
                 };
-                _context.ParkingSlots.Add(parkingSlot);
+                list.Add(parkingSlot);
             }
+            street.Slots = list;
+
             _context.SaveChanges();
             Console.WriteLine($"The street with the name '{streetName}' was successfully added to the city {cityName}!");
         }
@@ -197,8 +192,6 @@ public class StreetService
     {
         try
         {
-            //
-
             var street = _context.Streets.FirstOrDefault(s => s.Name == streetName);
             if (street == null)
             {
@@ -226,8 +219,6 @@ public class StreetService
     {
         try
         {
-            //
-
             var street = _context.Streets.FirstOrDefault(sn => sn.Name == streetName);
 
             if (street == null)
@@ -255,7 +246,7 @@ public class StreetService
 
     public List<Street> GetAllStreets(string cityName)
     {
-        var streets = _context.Streets.Where(s => s.CityName == cityName).ToList();
+        var streets = _context.Streets.Where(s => s.City.CityName == cityName).ToList();    
 
         if (streets.Count == 0)
         {
@@ -271,9 +262,9 @@ public class StreetService
 
     public List<Street> GetAllFreeStreets(string cityName)
     {
-        var streets = _context.Streets.Where(s => s.CityName == cityName && s.IsClosed == false).ToList();
+        var streets = _context.Streets.Where(s => s.City.CityName == cityName && s.IsClosed == false).ToList();
 
-        if(streets.Count == 0)
+        if (streets.Count == 0)
         {
             Console.WriteLine("There are no streets saved!");
         }
@@ -288,7 +279,7 @@ public class StreetService
 
     public List<Street> GetAllBusyStreets(string cityName)
     {
-        var streets = _context.Streets.Where(s => s.CityName == cityName && s.IsClosed == true).ToList();
+        var streets = _context.Streets.Where(s => s.City.CityName == cityName && s.IsClosed == true).ToList();
 
         if (streets.Count == 0)
         {

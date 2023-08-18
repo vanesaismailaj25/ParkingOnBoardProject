@@ -1,4 +1,5 @@
-﻿using ParkingOnBoard.Context;
+﻿using Microsoft.EntityFrameworkCore;
+using ParkingOnBoard.Context;
 using ParkingOnBoard.Validations;
 
 namespace ParkingOnBoard.Services;
@@ -122,9 +123,19 @@ public class ParkingService
 
             if (streetName == "*")
             {
-                var streets = _context.Streets.Where(s => s.CityName == cityName).ToList();
-                
-                foreach (var str in streets)
+                var streets = _context.Streets.Where(s => s.City.CityName == cityName).ToList();
+
+                /* var city = _context.Cities.Include(c => c.Streets)
+                 .ThenInclude(s => s.Slots)
+                 .Where(cn => cn.CityName == cityName)
+                 .FirstOrDefault();*/
+
+                //  var freeSlots = _context.ParkingSlots.Where(ps => ps.IsBusy == false && ps.IsClosed == false).Include(s => s.Street.Name == streetName).FirstOrDefault();
+
+                var freeSlotss = _context.ParkingSlots.Where(s => s.IsClosed == false && s.IsBusy == false).Include(s => s.Street).ThenInclude(s => s.City);
+
+                  
+               /* foreach (var str in streets)
                 {
                     Console.WriteLine($"{str.Name}");
                     var parkingSlots = _context.ParkingSlots.Where(ps => ps.StreetId == str.Id && ps.IsBusy == false && ps.IsClosed == false).ToList();
@@ -139,7 +150,7 @@ public class ParkingService
                     {
                         throw new Exception($"There are no free parking slots for the street {streetName}. You cannot park here!");
                     }
-                }
+                }*/
 
                 Console.WriteLine("Enter the name of the street you want to occupy a slot from: ");
                 var stre = Console.ReadLine()!;

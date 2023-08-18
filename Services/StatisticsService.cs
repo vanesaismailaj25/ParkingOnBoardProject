@@ -32,9 +32,9 @@ public class StatisticsService
                     {
                         Console.WriteLine("All the streets: ");
                         var streets = _context.Streets.ToList();
-                        foreach (var stre in streets)
+                        foreach (var street in streets)
                         {
-                            Console.WriteLine($"{stre.Name}");
+                            Console.WriteLine($"{street.Name}");
                         }
                         Console.WriteLine("\nEnter the name of the street you want to calculate: ");
                         string streetName = Console.ReadLine()!;

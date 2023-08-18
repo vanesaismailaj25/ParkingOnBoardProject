@@ -11,15 +11,13 @@ namespace ParkingOnBoard.Validations
             _context = new ParkingOnBoardContext();
         }
 
-        public void CityValidator(string cityName)
+        public void CityValidatorDBShouldntExist(string cityName)
         {
-            //Should not be null or whitespace
             if (string.IsNullOrWhiteSpace(cityName))
             {
                 throw new ArgumentNullException("City name should not be null or whitespace!");
             }
 
-            //Should not be a number
             foreach (char c in cityName)
             {
                 if (char.IsDigit(c))
@@ -36,15 +34,13 @@ namespace ParkingOnBoard.Validations
             }
         }
 
-        public void CitiesValidator(string cityName)
+        public void CitiesValidatorShouldExist(string cityName)
         {
-            //Should not be null or whitespace
             if (string.IsNullOrWhiteSpace(cityName))
             {
                 throw new ArgumentNullException("City name should not be null or whitespace!");
             }
 
-            //Should not be a number
             foreach (char c in cityName)
             {
                 if (char.IsDigit(c))
@@ -63,13 +59,11 @@ namespace ParkingOnBoard.Validations
 
         public void StreetValidatorForParking(string cityName, string streetName)
         {
-            //Should not be null or whitespace
             if (string.IsNullOrWhiteSpace(streetName))
             {
                 throw new ArgumentNullException("Street name should not be null or whitespace!");
             }
 
-            //Should not be a number
             foreach (char c in streetName)
             {
                 if (char.IsDigit(c))
@@ -78,22 +72,20 @@ namespace ParkingOnBoard.Validations
                 }
             }
 
-            var streetExists = _context.Streets.Where(n => n.Name == streetName && n.CityName == cityName);
+            var streetExists = _context.Streets.Where(n => n.Name == streetName && n.City.CityName == cityName);
             if (streetExists is null)
             {
                 throw new Exception($"The street with the name {streetName} doesn't exist in the database!");
             }
 
         }
-        public void StreetValidator(string streetName)
+        public void StreetValidatorShouldntExist(string streetName)
         {
-            //Should not be null or whitespace
             if (string.IsNullOrWhiteSpace(streetName))
             {
                 throw new ArgumentNullException("Street name should not be null or whitespace!");
             }
 
-            //Should not be a number
             foreach (char c in streetName)
             {
                 if (char.IsDigit(c))
@@ -107,19 +99,16 @@ namespace ParkingOnBoard.Validations
             if (streetExists)
             {
                 throw new Exception($"The street with the name {streetName} already exists in the database!");
-            }
-     
+            } 
         }
       
         public void StreetsValidator(string streetName)
         {
-            //Should not be null or whitespace
             if (string.IsNullOrWhiteSpace(streetName))
             {
                 throw new ArgumentNullException("Street name should not be null or whitespace!");
             }
 
-            //Should not be a number
             foreach (char c in streetName)
             {
                 if (char.IsDigit(c))
@@ -143,7 +132,7 @@ namespace ParkingOnBoard.Validations
                 throw new Exception("The input you typed was out of range. Please enter a valid slot number!");
             }
 
-            var slotExists = _context.ParkingSlots.Any(s => s.SlotNumber == slotNumber && s.StreetName == name);
+            var slotExists = _context.ParkingSlots.Any(s => s.SlotNumber == slotNumber && s.Street.Name == name);
             if (slotExists)
             {
                 throw new Exception($"The slot with the number {slotNumber} already exists in the database!");

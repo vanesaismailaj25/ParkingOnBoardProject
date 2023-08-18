@@ -53,7 +53,7 @@ public class CityService
     {
         try
         {
-            _validations.CityValidator(name);
+            _validations.CityValidatorDBShouldntExist(name);
 
             var city = new City()
             {

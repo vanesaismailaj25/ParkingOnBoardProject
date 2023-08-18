@@ -10,6 +10,5 @@ public class ParkingSlot
     public bool IsBusy { get; set; } = false;
     public Street Street { get; set; }  
     public int StreetId { get; set; }
-    public string StreetName { get; set;}
 }
 
