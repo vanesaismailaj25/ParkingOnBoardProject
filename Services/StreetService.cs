@@ -34,15 +34,14 @@ public class StreetService
                         {
                             Console.WriteLine("Enter the name of the city you want to add to the street: ");
                             string cityName = Console.ReadLine()!;
-                            _validations.CitiesValidator(cityName);
+                            _validations.CitiesValidatorShouldExist(cityName);
 
                             Console.WriteLine($"The list of all the streets of {cityName}: ");
                             GetAllStreets(cityName);
 
-
                             Console.WriteLine("Enter the name of the street you want to add: ");
                             string streetName = Console.ReadLine()!;
-                            _validations.StreetValidator(streetName);
+                            _validations.StreetValidatorShouldntExist(streetName);
 
                             Console.Write("If the street is one sided please type \"false\", if it has two sides please enter \"true\": ");
                             string sides = Console.ReadLine()!;
@@ -83,7 +82,7 @@ public class StreetService
                             Console.WriteLine("Enter the name of the city you want to close the street: ");
                             string cityNameClose = Console.ReadLine()!;
 
-                            _validations.CitiesValidator(cityNameClose);
+                            _validations.CitiesValidatorShouldExist(cityNameClose);
 
                             Console.WriteLine("The list of the streets that are not closed: ");
                             var result = GetAllFreeStreets(cityNameClose);
@@ -93,7 +92,7 @@ public class StreetService
                                 Console.WriteLine("Enter the name of the street you want to close: ");
                                 string givenStreetName = Console.ReadLine()!;
 
-                                _validations.StreetsValidator(givenStreetName);
+                                _validations.StreetsValidatorShouldExist(givenStreetName);
 
                                 CloseAStreet(givenStreetName);
                             }
@@ -115,7 +114,7 @@ public class StreetService
                             Console.WriteLine("Enter the name of the city you want to validate the street: ");
                             string cityNameValidate = Console.ReadLine()!;
 
-                            _validations.CitiesValidator(cityNameValidate);
+                            _validations.CitiesValidatorShouldExist(cityNameValidate);
 
                             Console.WriteLine("The list of the streets that are closed: ");
                             var streetsResult = GetAllBusyStreets(cityNameValidate);
@@ -125,7 +124,7 @@ public class StreetService
                                 Console.WriteLine("Enter the name of the street you want to validate: ");
                                 string streetNameValidate = Console.ReadLine()!;
 
-                                _validations.StreetsValidator(streetNameValidate);
+                                _validations.StreetsValidatorShouldExist(streetNameValidate);
 
                                 ValidateAStreet(streetNameValidate);
                             }
@@ -146,6 +145,7 @@ public class StreetService
                     Console.WriteLine("Please enter the correct input asked!");
                     break;
             }
+            Console.Clear();
         }
         catch (Exception e)
         {
@@ -249,9 +249,7 @@ public class StreetService
         var streets = _context.Streets.Where(s => s.City.CityName == cityName).ToList();    
 
         if (streets.Count == 0)
-        {
             Console.WriteLine("There are no streets saved!");
-        }
 
         foreach (var street in streets)
         {
@@ -265,15 +263,12 @@ public class StreetService
         var streets = _context.Streets.Where(s => s.City.CityName == cityName && s.IsClosed == false).ToList();
 
         if (streets.Count == 0)
-        {
             Console.WriteLine("There are no streets saved!");
-        }
 
         foreach(var street in streets)
         {
             Console.WriteLine($"{street.Name}");
         }
-
         return streets.ToList();
     }
 
@@ -282,15 +277,12 @@ public class StreetService
         var streets = _context.Streets.Where(s => s.City.CityName == cityName && s.IsClosed == true).ToList();
 
         if (streets.Count == 0)
-        {
             Console.WriteLine("There are no streets saved!");
-        }
 
         foreach (var street in streets)
         {
             Console.WriteLine($"{street.Name}");
         }
-
         return streets.ToList();
     }
 }  

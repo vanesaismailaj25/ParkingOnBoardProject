@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using ParkingOnBoard.Context;
 using ParkingOnBoard.Validations;
 
@@ -40,7 +41,7 @@ public class ParkingService
                             Console.WriteLine("Enter the name of the city: ");
                             string city = Console.ReadLine()!;
 
-                            _validations.CitiesValidator(city);
+                            _validations.CitiesValidatorShouldExist(city);
 
                             Console.WriteLine("At what street do you want to park? Please enter a street name or \"*\" if you want to display all streets: ");
                             string streetName = Console.ReadLine()!;
@@ -66,7 +67,7 @@ public class ParkingService
                             Console.WriteLine("Enter the name of the city you want to select: ");
                             string cityName = Console.ReadLine()!;
 
-                            _validations.CitiesValidator(cityName);
+                            _validations.CitiesValidatorShouldExist(cityName);
 
                             Console.WriteLine($"The list of all the streets of {cityName}: ");
                             var result = _streetService.GetAllStreets(cityName);
@@ -76,7 +77,7 @@ public class ParkingService
                                 Console.WriteLine("Enter the name of the street you want to free the parking slot from: ");
                                 string streetNameValidate = Console.ReadLine()!;
 
-                                _validations.StreetsValidator(streetNameValidate);
+                                _validations.StreetsValidatorShouldExist(streetNameValidate);
 
                                 var parkingSlotsResult = _parkingSlotService.GetAllParkingSlots(streetNameValidate);
                                 if (parkingSlotsResult.Count > 0)
@@ -84,9 +85,8 @@ public class ParkingService
                                     Console.WriteLine("Enter the number of the parking slot you wish to free: ");
                                     int parkingSlotNr;
 
-                                    if ((int.TryParse(Console.ReadLine(), out parkingSlotNr)))
-                                    {
-                                        //   
+                                    if (int.TryParse(Console.ReadLine(), out parkingSlotNr) && parkingSlotNr > 0)
+                                    {  
                                         FreeAParkingSlot(streetNameValidate, parkingSlotNr);
                                     }
                                 }
@@ -125,21 +125,11 @@ public class ParkingService
             {
                 var streets = _context.Streets.Where(s => s.City.CityName == cityName).ToList();
 
-                /* var city = _context.Cities.Include(c => c.Streets)
-                 .ThenInclude(s => s.Slots)
-                 .Where(cn => cn.CityName == cityName)
-                 .FirstOrDefault();*/
-
-                //  var freeSlots = _context.ParkingSlots.Where(ps => ps.IsBusy == false && ps.IsClosed == false).Include(s => s.Street.Name == streetName).FirstOrDefault();
-
-                var freeSlotss = _context.ParkingSlots.Where(s => s.IsClosed == false && s.IsBusy == false).Include(s => s.Street).ThenInclude(s => s.City);
-
-                  
-               /* foreach (var str in streets)
+                foreach (var str in streets)
                 {
                     Console.WriteLine($"{str.Name}");
                     var parkingSlots = _context.ParkingSlots.Where(ps => ps.StreetId == str.Id && ps.IsBusy == false && ps.IsClosed == false).ToList();
-                    if(parkingSlots.Count > 0)
+                    if (parkingSlots.Count > 0)
                     {
                         foreach (var ps in parkingSlots)
                         {
@@ -150,12 +140,12 @@ public class ParkingService
                     {
                         throw new Exception($"There are no free parking slots for the street {streetName}. You cannot park here!");
                     }
-                }*/
+                }
 
                 Console.WriteLine("Enter the name of the street you want to occupy a slot from: ");
                 var stre = Console.ReadLine()!;
 
-                _validations.StreetsValidator(stre);
+                _validations.StreetsValidatorShouldExist(stre);
 
 
                 Console.WriteLine("Enter the slot you want to occupy: ");
@@ -163,6 +153,8 @@ public class ParkingService
 
                 if (int.TryParse(Console.ReadLine(), out slotNumber))
                 {
+                    _validations.SlotsValidatorShouldExist(slotNumber);
+                    
                     if (_parkingSlotService != null)
                     {
                         _parkingSlotService.OccupyAParkingSlot(stre, slotNumber);
@@ -175,7 +167,7 @@ public class ParkingService
                 }
             }
 
-            //Get free parking slots for only a speciific street
+            //Get free parking slots for only a specific street
             var street = _context.Streets.FirstOrDefault(s => s.Name == streetName);
 
             if (street != null)
@@ -185,13 +177,14 @@ public class ParkingService
 
                 parkingSlots = _context.ParkingSlots.Where(ps => ps.StreetId == street.Id && ps.IsBusy == false && ps.IsClosed == false).ToList();
 
+                Console.WriteLine($"Here will be displayed the free parking slots of the street {streetName}: ");
+
                 foreach (var item in parkingSlots)
                 {
                     Console.WriteLine($"Slot number {item.SlotNumber}");
                 }
                 if (parkingSlots.Count > 0)
                 {
-                    Console.WriteLine($"Here will be displayed the free parking slots of the street {streetName}: ");
 
                     Console.WriteLine("Enter the slot you want to occupy: ");
                     int slotNumber;
@@ -225,8 +218,6 @@ public class ParkingService
     {
         try
         {
-            //
-
             if (_parkingSlotService != null)
             {
                 _parkingSlotService.ValidateAParkingSlot(streetName, slotNumber);
@@ -236,9 +227,9 @@ public class ParkingService
                 Console.WriteLine("The parking slot is already free to be used!");
             }
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            Console.WriteLine($"Could not free the parking slot with number {slotNumber}.");
+            Console.WriteLine($"Error: {e.Message}");
         }
     }
 }

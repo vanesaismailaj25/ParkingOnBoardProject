@@ -39,7 +39,7 @@ public class ParkingSlotService
                             Console.WriteLine("Enter the name of the city you want to add the parking slot: ");
                             string cityName = Console.ReadLine()!;
 
-                            _validations.CitiesValidator(cityName);
+                            _validations.CitiesValidatorShouldExist(cityName);
 
                             Console.WriteLine($"The list of all the streets of {cityName}");
                             var result = _streetService.GetAllStreets(cityName);
@@ -48,7 +48,7 @@ public class ParkingSlotService
                                 Console.WriteLine("Enter the name of the street where you want to add the parking slot: ");
                                 string streetName = Console.ReadLine()!;
 
-                                _validations.StreetsValidator(streetName);
+                                _validations.StreetsValidatorShouldExist(streetName);
 
                                 Console.WriteLine("All the parking slots: ");
                                 GetAllParkingSlots(streetName);
@@ -59,7 +59,7 @@ public class ParkingSlotService
 
                                 if (int.TryParse(Console.ReadLine(), out slotNumber))
                                 {
-                                    _validations.SlotValidator(streetName, slotNumber);
+                                    _validations.SlotValidatorShouldntExist(streetName, slotNumber);
                                     AddSlotToTheStreet(streetName, slotNumber);
                                 }
                                 else
@@ -86,7 +86,7 @@ public class ParkingSlotService
                             Console.WriteLine("Enter the name of the city you want to remove the parking slot from: ");
                             string cityNameRemove = Console.ReadLine()!;
 
-                            _validations.CitiesValidator(cityNameRemove);
+                            _validations.CitiesValidatorShouldExist(cityNameRemove);
 
                             Console.WriteLine($"The list of all the streets of {cityNameRemove}");
                             var result = _streetService.GetAllStreets(cityNameRemove);
@@ -96,7 +96,7 @@ public class ParkingSlotService
                                 Console.WriteLine("Enter the name of the street you want to remove the parking slot from: ");
                                 string streetNameRemove = Console.ReadLine()!;
 
-                                _validations.StreetsValidator(streetNameRemove);
+                                _validations.StreetsValidatorShouldExist(streetNameRemove);
 
                                 Console.WriteLine("All the parking slots: ");
 
@@ -108,7 +108,7 @@ public class ParkingSlotService
 
                                     if (int.TryParse(Console.ReadLine(), out slotNumberRemove))
                                     {
-                                        _validations.SlotsValidator(slotNumberRemove);
+                                        _validations.SlotsValidatorShouldExist(slotNumberRemove);
                                         RemoveASlotFromStreet(streetNameRemove, slotNumberRemove);
                                     }
                                     else
@@ -134,7 +134,7 @@ public class ParkingSlotService
                         Console.WriteLine("Enter the name of the city you want to remove the parking slot from: ");
                         string cityNameClose = Console.ReadLine()!;
 
-                        _validations.CitiesValidator(cityNameClose);
+                        _validations.CitiesValidatorShouldExist(cityNameClose);
 
                         Console.WriteLine($"The list of all the streets of {cityNameClose}");
                         var streetResults = _streetService.GetAllStreets(cityNameClose);
@@ -144,7 +144,7 @@ public class ParkingSlotService
                             Console.WriteLine("Enter the name of the street you want to close/make it busy a parking slot: ");
                             string streetNameClose = Console.ReadLine()!;
 
-                            _validations.StreetsValidator(streetNameClose);
+                            _validations.StreetsValidatorShouldExist(streetNameClose);
 
                             Console.WriteLine("All the parking slots: ");
                             var slotResult = GetAllFreeParkingSlots(streetNameClose);
@@ -155,7 +155,7 @@ public class ParkingSlotService
 
                                 if (int.TryParse(Console.ReadLine(), out slotNumberClose))
                                 {
-                                    _validations.SlotsValidator(slotNumberClose);
+                                    _validations.SlotsValidatorShouldExist(slotNumberClose);
                                     OccupyAParkingSlot(streetNameClose, slotNumberClose);
                                 }
                                 else
@@ -175,7 +175,7 @@ public class ParkingSlotService
                         Console.WriteLine("Enter the name of the city you want to remove the parking slot from: ");
                         string cityNameClose = Console.ReadLine()!;
 
-                        _validations.CitiesValidator(cityNameClose);
+                        _validations.CitiesValidatorShouldExist(cityNameClose);
 
                         Console.WriteLine($"The list of all the streets of {cityNameClose}");
                         var streetResults = _streetService.GetAllStreets(cityNameClose);
@@ -185,7 +185,7 @@ public class ParkingSlotService
                             Console.WriteLine("Enter the name of the street you want to close/make it busy a parking slot: ");
                             string streetNameClose = Console.ReadLine()!;
 
-                            _validations.StreetsValidator(streetNameClose);
+                            _validations.StreetsValidatorShouldExist(streetNameClose);
 
                             Console.WriteLine("All the parking slots: ");
                             var slotResult = GetAllFreeParkingSlots(streetNameClose);
@@ -196,7 +196,7 @@ public class ParkingSlotService
 
                                 if (int.TryParse(Console.ReadLine(), out slotNumberClose))
                                 {
-                                    _validations.SlotsValidator(slotNumberClose);
+                                    _validations.SlotsValidatorShouldExist(slotNumberClose);
                                     CloseAParkingSlot(streetNameClose, slotNumberClose);
                                 }
                                 else
@@ -216,7 +216,7 @@ public class ParkingSlotService
                         Console.WriteLine("Enter the name of the city you want to remove the parking slot from: ");
                         string cityNameValidate = Console.ReadLine()!;
 
-                        _validations.CitiesValidator(cityNameValidate);
+                        _validations.CitiesValidatorShouldExist(cityNameValidate);
 
                         Console.WriteLine($"The list of all the streets of {cityNameValidate}: ");
                         var streetsResultList = _streetService.GetAllStreets(cityNameValidate);
@@ -225,7 +225,7 @@ public class ParkingSlotService
                             Console.WriteLine("Enter the name of the street you want to validate a parking slot on: ");
                             string streetNameValidate = Console.ReadLine()!;
 
-                            _validations.StreetsValidator(streetNameValidate);
+                            _validations.StreetsValidatorShouldExist(streetNameValidate);
 
                             Console.WriteLine("The parking slots that will be validated: ");
                             var slotResults = GetAllBusyParkingSlots(streetNameValidate);
@@ -237,7 +237,7 @@ public class ParkingSlotService
 
                                 if (int.TryParse(Console.ReadLine(), out slotNumberValidate))
                                 {
-                                    _validations.SlotsValidator(slotNumberValidate);
+                                    _validations.SlotsValidatorShouldExist(slotNumberValidate);
                                     ValidateAParkingSlot(streetNameValidate, slotNumberValidate);
                                 }
                                 else

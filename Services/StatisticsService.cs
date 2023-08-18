@@ -82,7 +82,7 @@ public class StatisticsService
     {
         try
         {
-            _validations.StreetsValidator(streetName);
+            _validations.StreetsValidatorShouldExist(streetName);
 
             var street = _context.Streets.Include(c => c.Slots).FirstOrDefault(sn => sn.Name == streetName);
 
@@ -112,36 +112,42 @@ public class StatisticsService
     {
         try
         {
-            _validations.CitiesValidator(cityName);
+            _validations.CitiesValidatorShouldExist(cityName);
 
             var city = _context.Cities.Include(c => c.Streets)
                 .ThenInclude(s => s.Slots)
                 .Where(cn => cn.CityName == cityName)
                 .FirstOrDefault();
 
-
-            Console.WriteLine("City Statistics:");
-
-            var lessBusyStreets = city.Streets.Where(s => s.Slots.Any() && s.Slots.Count(slot => slot.IsBusy) / s.Slots.Count <= 0.25)
-                                         .Select(s => s.Name)
-                                         .ToList();
-
-
-            var moreBusyStreets = city.Streets.Where(s => s.Slots.Any() && s.Slots.Count(slot => slot.IsBusy) / s.Slots.Count >= 0.75)
-                                         .Select(s => s.Name)
-                                         .ToList();
-
-            Console.WriteLine("Streets with maximum 25% busy slots: ");
-            foreach (var street in lessBusyStreets)
+            if(city.Streets.Any())
             {
-                Console.WriteLine($"{street}");
+                Console.WriteLine("City Statistics:");
+
+                var lessBusyStreets = city.Streets.Where(s => s.Slots.Any() && s.Slots.Count(slot => slot.IsBusy) / s.Slots.Count <= 0.25)
+                                             .Select(s => s.Name)
+                                             .ToList();
+
+
+                var moreBusyStreets = city.Streets.Where(s => s.Slots.Any() && s.Slots.Count(slot => slot.IsBusy) / s.Slots.Count >= 0.75)
+                                             .Select(s => s.Name)
+                                             .ToList();
+
+                Console.WriteLine("Streets with maximum 25% busy slots: ");
+                foreach (var street in lessBusyStreets)
+                {
+                    Console.WriteLine($"{street}");
+                }
+
+                Console.WriteLine("Streets with minimum 75% busy slots: ");
+                foreach (var street in moreBusyStreets)
+                {
+                    Console.WriteLine($"{street}");
+                }
             }
-
-            Console.WriteLine("Streets with minimum 75% busy slots: ");
-            foreach (var street in moreBusyStreets)
+            else
             {
-                Console.WriteLine($"{street}");
-            }        
+                Console.WriteLine($"There are no streets for the city {cityName}, therefore we cannot calculate the city statistics!");
+            }
         }
         catch (Exception e)
         {

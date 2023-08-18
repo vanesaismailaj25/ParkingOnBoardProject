@@ -26,7 +26,6 @@ namespace ParkingOnBoard.Validations
                 }
             }
 
-            //Should not exist in the db
             var cityExists = _context.Cities.Any(n => n.CityName == cityName);
             if (cityExists)
             {
@@ -49,7 +48,6 @@ namespace ParkingOnBoard.Validations
                 }
             }
 
-            //Should  exist in the db
             var cityExists = _context.Cities.Any(n => n.CityName == cityName);
             if (!cityExists)
             {
@@ -93,8 +91,7 @@ namespace ParkingOnBoard.Validations
                     throw new Exception("The input you entered was numeric or contains digits. Please enter a valid street name!");
                 }
             }
-
-            //Should not exist in the db--ky validation hyn ne pune vetem per AddACity method
+            
             var streetExists = _context.Streets.Any(n => n.Name == streetName);
             if (streetExists)
             {
@@ -102,7 +99,7 @@ namespace ParkingOnBoard.Validations
             } 
         }
       
-        public void StreetsValidator(string streetName)
+        public void StreetsValidatorShouldExist(string streetName)
         {
             if (string.IsNullOrWhiteSpace(streetName))
             {
@@ -117,7 +114,6 @@ namespace ParkingOnBoard.Validations
                 }
             }
 
-            //Should exist in the db
             var streetExists = _context.Streets.Any(n => n.Name == streetName);
             if (!streetExists)
             {
@@ -125,7 +121,7 @@ namespace ParkingOnBoard.Validations
             }
         }
 
-        public void SlotValidator(string name, int slotNumber)
+        public void SlotValidatorShouldntExist(string name, int slotNumber)
         {
             if (slotNumber < 0)
             {
@@ -139,7 +135,7 @@ namespace ParkingOnBoard.Validations
             }
         }
 
-        public void SlotsValidator(int slotNumber)
+        public void SlotsValidatorShouldExist(int slotNumber)
         {
             if (slotNumber < 0)
             {
