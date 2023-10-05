@@ -24,6 +24,7 @@ public class StatisticsService
             Console.WriteLine("Choose what operation would you like to do: ");
             Console.WriteLine("1. Street statistics. \n2. City statistics.\n3.Log out. ");
             int input = int.Parse(Console.ReadLine()!);
+            Console.Clear();
 
             switch (input)
             {
@@ -64,7 +65,6 @@ public class StatisticsService
                     break;
 
                 case 3:
-                    Console.WriteLine("Log out!");
                     RunService.User();
                     break;
 
@@ -116,7 +116,7 @@ public class StatisticsService
 
             var city = _context.Cities.Include(c => c.Streets)
                 .ThenInclude(s => s.Slots)
-                .Where(cn => cn.CityName == cityName)
+                .Where(cn => cn.Name == cityName)
                 .FirstOrDefault();
 
             if(city.Streets.Any())

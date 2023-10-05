@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using ParkingOnBoard.Context;
+﻿using ParkingOnBoard.Context;
 using ParkingOnBoard.Validations;
 
 namespace ParkingOnBoard.Services;
@@ -28,6 +26,7 @@ public class ParkingService
             Console.WriteLine("Choose what operation would you like to do: ");
             Console.WriteLine("1. Parking. \n2.Unparking. \n3.Main menu.");
             int input = int.Parse(Console.ReadLine()!);
+            Console.Clear();
 
             switch (input)
             {
@@ -101,7 +100,6 @@ public class ParkingService
                     break;
 
                 case 3:
-                    Console.WriteLine("Main menu!");
                     RunService.User();
                     break;
 
@@ -120,10 +118,9 @@ public class ParkingService
     {
         try
         {
-
             if (streetName == "*")
             {
-                var streets = _context.Streets.Where(s => s.City.CityName == cityName).ToList();
+                var streets = _context.Streets.Where(s => s.City.Name == cityName).ToList();
 
                 foreach (var str in streets)
                 {
@@ -143,9 +140,9 @@ public class ParkingService
                 }
 
                 Console.WriteLine("Enter the name of the street you want to occupy a slot from: ");
-                var stre = Console.ReadLine()!;
+                var streetToOccupy = Console.ReadLine()!;
 
-                _validations.StreetsValidatorShouldExist(stre);
+                _validations.StreetsValidatorShouldExist(streetToOccupy);
 
 
                 Console.WriteLine("Enter the slot you want to occupy: ");
@@ -157,7 +154,7 @@ public class ParkingService
                     
                     if (_parkingSlotService != null)
                     {
-                        _parkingSlotService.OccupyAParkingSlot(stre, slotNumber);
+                        _parkingSlotService.OccupyAParkingSlot(streetToOccupy, slotNumber);
                         Console.WriteLine("The parking slot is now busy!");
                     }
                     else
@@ -177,7 +174,7 @@ public class ParkingService
 
                 parkingSlots = _context.ParkingSlots.Where(ps => ps.StreetId == street.Id && ps.IsBusy == false && ps.IsClosed == false).ToList();
 
-                Console.WriteLine($"Here will be displayed the free parking slots of the street {streetName}: ");
+                Console.WriteLine($"The free parking slots of the street {streetName}: ");
 
                 foreach (var item in parkingSlots)
                 {
