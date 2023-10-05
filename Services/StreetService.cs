@@ -22,6 +22,7 @@ public class StreetService
             Console.WriteLine("Choose what operation would you like to do: ");
             Console.WriteLine("1. Add a new street. \n2. Close a street. \n3. Validate a street. \n4.Main menu. \nAnswer: ");
             int input = int.Parse(Console.ReadLine()!);
+            Console.Clear();
 
             switch (input)
             {
@@ -32,7 +33,7 @@ public class StreetService
                         var citiesResult = _cityService.GetAllCities();
                         if (citiesResult.Count > 0)
                         {
-                            Console.WriteLine("Enter the name of the city you want to add to the street: ");
+                            Console.WriteLine("Enter the name of the city you want to add the street to: ");
                             string cityName = Console.ReadLine()!;
                             _validations.CitiesValidatorShouldExist(cityName);
 
@@ -137,7 +138,6 @@ public class StreetService
                     break;
 
                 case 4:
-                    Console.WriteLine("Log out!");
                     RunService.Admin();
                     break;
 
@@ -145,7 +145,6 @@ public class StreetService
                     Console.WriteLine("Please enter the correct input asked!");
                     break;
             }
-            Console.Clear();
         }
         catch (Exception e)
         {
@@ -153,11 +152,11 @@ public class StreetService
         }
     }
 
-    public void AddAStreet(string cityName, string streetName, bool sides, int totalSlots)
+    public void AddAStreet(string cityName, string streetName, bool sides, int numberOfSlots)
     {
         try
         {
-            var city = _context.Cities.First(c => c.CityName == cityName);
+            var city = _context.Cities.First(c => c.Name == cityName);
 
             var street = new Street
             {
@@ -166,20 +165,13 @@ public class StreetService
                 CityId = city.Id,
                 Slots = new List<ParkingSlot>()
             };
-            _context.Streets.Add(street);
-            
-            var list = new List<ParkingSlot>();
-            for (int i = 1; i <= totalSlots; i++)
-            {
-                var parkingSlot = new ParkingSlot
-                {
-                    SlotNumber = i,
-                };
-                list.Add(parkingSlot);
-            }
-            street.Slots = list;
 
+            for (int i = 1; i <= numberOfSlots; i++)
+                street.Slots.Add(new ParkingSlot { SlotNumber = i });
+
+            _context.Streets.Add(street);
             _context.SaveChanges();
+ 
             Console.WriteLine($"The street with the name '{streetName}' was successfully added to the city {cityName}!");
         }
         catch (Exception e)
@@ -246,7 +238,7 @@ public class StreetService
 
     public List<Street> GetAllStreets(string cityName)
     {
-        var streets = _context.Streets.Where(s => s.City.CityName == cityName).ToList();    
+        var streets = _context.Streets.Where(s => s.City.Name == cityName).ToList();    
 
         if (streets.Count == 0)
             Console.WriteLine("There are no streets saved!");
@@ -260,7 +252,7 @@ public class StreetService
 
     public List<Street> GetAllFreeStreets(string cityName)
     {
-        var streets = _context.Streets.Where(s => s.City.CityName == cityName && s.IsClosed == false).ToList();
+        var streets = _context.Streets.Where(s => s.City.Name == cityName && s.IsClosed == false).ToList();
 
         if (streets.Count == 0)
             Console.WriteLine("There are no streets saved!");
@@ -274,7 +266,7 @@ public class StreetService
 
     public List<Street> GetAllBusyStreets(string cityName)
     {
-        var streets = _context.Streets.Where(s => s.City.CityName == cityName && s.IsClosed == true).ToList();
+        var streets = _context.Streets.Where(s => s.City.Name == cityName && s.IsClosed == true).ToList();
 
         if (streets.Count == 0)
             Console.WriteLine("There are no streets saved!");

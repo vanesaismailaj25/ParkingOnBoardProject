@@ -35,7 +35,6 @@ public class CityService
                     break;
 
                 case 2:
-                    Console.WriteLine("Admin menu.");
                     RunService.Admin();
                     break;
              
@@ -57,13 +56,13 @@ public class CityService
 
             var city = new City()
             {
-                CityName = name
+                Name = name
             };
 
             _context.Cities.Add(city);
             _context.SaveChanges();
 
-            Console.WriteLine($"The city with the name {city.CityName} was added successfully to the database!");
+            Console.WriteLine($"The city with the name {city.Name} was added successfully to the database!");
         }
         catch (Exception e)
         {
@@ -79,7 +78,7 @@ public class CityService
         
         foreach (var city in cities)
         {
-            Console.WriteLine($"{city.CityName}");
+            Console.WriteLine($"{city.Name}");
         }
         return cities.ToList();
     }

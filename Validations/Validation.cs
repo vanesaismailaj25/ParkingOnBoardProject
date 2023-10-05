@@ -26,7 +26,7 @@ namespace ParkingOnBoard.Validations
                 }
             }
 
-            var cityExists = _context.Cities.Any(n => n.CityName == cityName);
+            var cityExists = _context.Cities.Any(n => n.Name == cityName);
             if (cityExists)
             {
                 throw new Exception($"The city with the name {cityName} already exists in the database!");
@@ -48,7 +48,7 @@ namespace ParkingOnBoard.Validations
                 }
             }
 
-            var cityExists = _context.Cities.Any(n => n.CityName == cityName);
+            var cityExists = _context.Cities.Any(n => n.Name == cityName);
             if (!cityExists)
             {
                 throw new Exception($"The city with the name {cityName} doesn't exist in the database!");
@@ -70,8 +70,8 @@ namespace ParkingOnBoard.Validations
                 }
             }
 
-            var streetExists = _context.Streets.Where(n => n.Name == streetName && n.City.CityName == cityName);
-            if (streetExists is null)
+            var streetExists = _context.Streets.Where(n => n.Name == streetName && n.City.Name == cityName);
+            if (streetExists == null)
             {
                 throw new Exception($"The street with the name {streetName} doesn't exist in the database!");
             }

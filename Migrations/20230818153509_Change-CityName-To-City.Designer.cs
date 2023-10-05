@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ParkingOnBoard.Context;
 
@@ -10,9 +11,11 @@ using ParkingOnBoard.Context;
 namespace ParkingOnBoard.Migrations
 {
     [DbContext(typeof(ParkingOnBoardContext))]
-    partial class ParkingOnBoardContextModelSnapshot : ModelSnapshot
+    [Migration("20230818153509_Change-CityName-To-City")]
+    partial class ChangeCityNameToCity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

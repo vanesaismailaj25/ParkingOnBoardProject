@@ -26,6 +26,7 @@ public class ParkingSlotService
             Console.WriteLine("Choose what operation would you like to do: ");
             Console.WriteLine("1. Add a new parking slot to a street. \n2. Remove a parking slot from a street. \n3. Occupy a parking slot. \n4. Close a parking slot. \n5. Validate a parking slot. \n6.Main menu. \nAnswer: ");
             int input = int.Parse(Console.ReadLine()!);
+            Console.Clear();
 
             switch (input)
             {
@@ -250,7 +251,6 @@ public class ParkingSlotService
                     break;
 
                 case 6:
-                    Console.WriteLine("Log out!");
                     RunService.Admin();
                     break;
 
